@@ -6,6 +6,8 @@
 
 <script>
 import { sellerBarList } from "../assets/api/api";
+import { mapState } from "vuex";
+import { getThemeValue } from "@/utils/theme_utils";
 export default {
   name: "seller",
   data() {
@@ -22,11 +24,28 @@ export default {
       totalPage: 0,
       // 定时器
       timerId: null,
+      // 当鼠标移入axis(坐标轴)时展示 底层的背景色
+      PointerColor: this.axisPointerColor,
     };
+  },
+  computed: {
+    ...mapState(["theme"]),
+    axisPointerColor() {
+      return getThemeValue(this.theme).sellerAxisPointerColor;
+    },
+  },
+  created() {
+    // this.$socket.registerCallBack("sellerData", this.getList);
   },
   mounted() {
     this.initEcharts();
     this.getList();
+    // this.$socket.send({
+    //   action: "getData",
+    //   socketType: "sellerData",
+    //   chartName: "seller",
+    //   value: "",
+    // });
     window.addEventListener("resize", this.screenAdapter);
     this.screenAdapter();
   },
@@ -34,22 +53,32 @@ export default {
     clearInterval(this.timerId);
     // 在组件销毁的时候，把监听器取消掉
     window.removeEventListener("resize", this.screenAdapter);
+    // this.$socket.unRegisterCallBack("sellerData");
+  },
+  watch: {
+    theme() {
+      // 销毁当前的图表
+      this.myEcharts.dispose();
+      // 以最新主题初始化图表对象
+      this.initEcharts();
+      // 渲染数据
+      this.setEcharts();
+      // 屏幕适配
+      this.screenAdapter();
+    },
   },
   methods: {
     initEcharts() {
       // 基于准备好的dom，初始化echarts实例
-      this.myEcharts = this.$echarts.init(this.$refs.sellerBar, "chalk");
+      this.myEcharts = this.$echarts.init(this.$refs.sellerBar, this.theme);
       let initOption = {
         title: {
           text: "▎商家销售统计",
-          textStyle: {
-            color: "#fff",
-          },
           left: 20,
           top: 20,
         },
         grid: {
-          top: "10%",
+          top: "20%",
           left: "3%",
           right: "6%",
           bottom: "3%",
@@ -111,7 +140,7 @@ export default {
             z: 0,
             lineStyle: {
               type: "solid",
-              color: "#2D3443",
+              color: this.axisPointerColor,
             },
           },
         },
@@ -119,6 +148,7 @@ export default {
           {
             type: "bar",
             itemStyle: {
+              barBorderRadius: [0, 20, 20, 0],
               color: {
                 type: "linear",
                 x: 0,
@@ -158,7 +188,8 @@ export default {
       });
     },
     async getList() {
-      let res = await sellerBarList({}, "get");
+      // let res = await sellerBarList({}, "get");
+      let res = await this.$axios.get("/data/seller.json");
       this.allData = res.data.sort((a, b) => b.value - a.value);
       this.totalPage = Math.ceil(this.allData.length / 5);
       this.allData.forEach((item) => {

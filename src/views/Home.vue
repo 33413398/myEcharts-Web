@@ -4,7 +4,7 @@
       <div>
         <img :src="headerSrc" alt="" />
       </div>
-      <span class="logo"> 骜然练习作品 </span>
+      <span class="logo" @click="goBlog"> 郝Sir博客 </span>
       <span class="title">电商平台实时监控系统</span>
       <div class="title-right">
         <img :src="themeSrc" class="qiehuan" @click="handleChangeTheme" alt="切换主题" title="切换主题" />
@@ -106,9 +106,9 @@ export default {
   },
   created() {
     // 注册服务端广播的全屏事件
-    this.$socket.registerCallBack("fullScreen", this.recvData);
+    // this.$socket.registerCallBack("fullScreen", this.recvData);
     // 注册服务器广播的主题切换事件
-    this.$socket.registerCallBack("themeChange", this.recvThemeChange);
+    // this.$socket.registerCallBack("themeChange", this.recvThemeChange);
     this.currentTime();
   },
   computed: {
@@ -135,8 +135,8 @@ export default {
   },
   destroyed() {
     // 组件销毁时，销毁事件
-    this.$socket.unRegisterCallBack("fullScreen");
-    this.$socket.unRegisterCallBack("themeChange");
+    // this.$socket.unRegisterCallBack("fullScreen");
+    // this.$socket.unRegisterCallBack("themeChange");
     clearInterval(this.timerID);
   },
   methods: {
@@ -175,19 +175,19 @@ export default {
     },
     // 主题切换事件
     handleChangeTheme() {
-      // this.$store.commit('changeTheme')
+      this.$store.commit("changeTheme");
 
-      this.$socket.send({
-        action: "themeChange",
-        socketType: "themeChange",
-        chartName: "",
-        value: "",
-      });
+      // this.$socket.send({
+      //   action: "themeChange",
+      //   socketType: "themeChange",
+      //   chartName: "",
+      //   value: "",
+      // });
     },
     // 接收到服务器切换主题事件
-    recvThemeChange() {
-      this.$store.commit("changeTheme");
-    },
+    // recvThemeChange() {
+    //   this.$store.commit("changeTheme");
+    // },
     currentTime() {
       this.systemDateTime = new Date().toLocaleString();
 
@@ -196,6 +196,9 @@ export default {
       this.timerID = setInterval(() => {
         this.systemDateTime = new Date().toLocaleString();
       }, 1000);
+    },
+    goBlog() {
+      window.open("https://33413398.github.io/haoSir/");
     },
   },
 };
@@ -259,6 +262,7 @@ export default {
     left: 0px;
     top: 50%;
     transform: translateY(-80%);
+    cursor: pointer;
     a {
       text-decoration: none;
     }
