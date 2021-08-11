@@ -5,6 +5,7 @@ import store from "./store";
 import axios from "axios";
 import * as echarts from "echarts";
 import "./assets/lib/theme/chalk";
+import "./assets/lib/theme/westeros";
 import "./assets/lib/theme/vintage";
 // 引入字体文件
 import "./assets/font/iconfont.css";
