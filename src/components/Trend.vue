@@ -31,6 +31,10 @@ export default {
       activeName: "map",
       // 指明标题的字体大小
       titleFontSize: 0,
+      // 当前索引
+      currentIndex: 0,
+      // 定时器
+      timerId: null,
     };
   },
   computed: {
@@ -63,6 +67,7 @@ export default {
   destroyed() {
     // 在组件销毁的时候，把监听器取消掉
     window.removeEventListener("resize", this.screenAdapter);
+    clearInterval(this.timerId);
   },
   watch: {
     theme() {
@@ -77,7 +82,7 @@ export default {
     },
   },
   methods: {
-    async initEcharts() {
+    initEcharts() {
       // 基于准备好的dom，初始化echarts实例
       this.myEcharts = this.$echarts.init(this.$refs.trendLine, this.theme);
       this.myEcharts.hideLoading();
@@ -109,11 +114,18 @@ export default {
       };
       // 使用刚指定的配置项和数据显示图表。
       this.myEcharts.setOption(initOption);
+      this.myEcharts.on("mouseover", () => {
+        this.timerId && clearInterval(this.timerId);
+      });
+      this.myEcharts.on("mouseout", () => {
+        this.startInterval();
+      });
     },
     async getList() {
       let { data: res } = await this.$axios.get("/data/trend.json");
       this.allData = res;
       this.setEcharts();
+      this.startInterval();
     },
     // 设置数据
     setEcharts() {
@@ -137,7 +149,6 @@ export default {
       const month = this.allData.common.month;
       // y轴数据 series下的数据
       const valueArr = this.allData[this.activeName].data;
-
       const seriesArr = valueArr.map((item, index) => {
         return {
           // 图例的数据需要和series的name匹配
@@ -199,6 +210,19 @@ export default {
     handleSelect(currentType) {
       this.activeName = currentType;
       this.setEcharts();
+    },
+    // 定时器
+    startInterval() {
+      let arr = ["map", "seller", "commodity"];
+      this.timerId && clearInterval(this.timerId);
+      this.timerId = setInterval(() => {
+        this.handleSelect(arr[this.currentIndex]);
+        this.currentIndex++;
+        if (this.currentIndex > arr.length - 1) {
+          this.currentIndex = 0;
+        }
+        this.setEcharts();
+      }, 5000);
     },
   },
 };
