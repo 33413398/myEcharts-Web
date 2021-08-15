@@ -68,6 +68,7 @@ export default {
           map: "china",
           top: "5%",
           bottom: "5%",
+          // center: [103.823557, 36.058039],
           // 允许拖动及缩放
           roam: true,
           itemStyle: {
@@ -98,6 +99,7 @@ export default {
           );
           // 把请求到的数据保存下来
           this.cityMapData[ProvinceInfo.key] = res;
+          console.log(res);
           // 注册点击的地图
           this.$echarts.registerMap(ProvinceInfo.key, res);
         }
