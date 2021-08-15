@@ -10,7 +10,7 @@
         </div>
       </div>
     </div>
-    <div class="com-chart" ref="trendLine"></div>
+    <div class="com-chart" ref="trendLine" @mouseover="onOver" @mouseleave="onLeave"></div>
   </div>
 </template>
 
@@ -114,12 +114,6 @@ export default {
       };
       // 使用刚指定的配置项和数据显示图表。
       this.myEcharts.setOption(initOption);
-      this.myEcharts.on("mouseover", () => {
-        this.timerId && clearInterval(this.timerId);
-      });
-      this.myEcharts.on("mouseout", () => {
-        this.startInterval();
-      });
     },
     async getList() {
       let { data: res } = await this.$axios.get("/data/trend.json");
@@ -222,7 +216,14 @@ export default {
           this.currentIndex = 0;
         }
         this.setEcharts();
-      }, 5000);
+      }, 3000);
+    },
+    // 鼠标经过和离开事件
+    onOver() {
+      this.timerId && clearInterval(this.timerId);
+    },
+    onLeave() {
+      this.startInterval();
     },
   },
 };
